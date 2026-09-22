@@ -1,8 +1,10 @@
 package com.learnwithdurgesh.springAILearning.service.agentic.controllerAgent;
 
 import com.learnwithdurgesh.springAILearning.service.agentic.model.FeedbackState;
+import com.learnwithdurgesh.springAILearning.service.agentic.model.ParallelReviewState;
 import com.learnwithdurgesh.springAILearning.service.agentic.model.SequentialBlogState;
 import com.learnwithdurgesh.springAILearning.service.agentic.workflow.ConditionalRoutingService;
+import com.learnwithdurgesh.springAILearning.service.agentic.workflow.ParallelWorkflowService;
 import com.learnwithdurgesh.springAILearning.service.agentic.workflow.SequentialWorkflowService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,9 +20,12 @@ import java.util.Map;
 public class SequentialWorkflowController {
     private final SequentialWorkflowService workflowService;
     private final ConditionalRoutingService conditionalRoutingService;
-    public SequentialWorkflowController(SequentialWorkflowService workflowService , ConditionalRoutingService conditionalRoutingService) {
+    private final ParallelWorkflowService parallelWorkflowService;
+
+    public SequentialWorkflowController(SequentialWorkflowService workflowService , ConditionalRoutingService conditionalRoutingService, ParallelWorkflowService parallelWorkflowService) {
         this.workflowService = workflowService;
         this.conditionalRoutingService = conditionalRoutingService;
+        this.parallelWorkflowService = parallelWorkflowService;
     }
     @GetMapping("/seq")
     public ResponseEntity<Map<String , Object>> runSequentialWorkflow(@RequestParam("topic") String topic) {
@@ -43,5 +48,15 @@ public class SequentialWorkflowController {
                 "response",res.getResponse()
         ));
 
+    }
+    @GetMapping("/parallel")
+    public ResponseEntity<Map<String , Object>> testParallel(@RequestParam("code")String code){
+        ParallelReviewState result = parallelWorkflowService.runParallelAudit(code);
+        return ResponseEntity.ok(Map.of(
+                "code" , result.getUserCode(),
+                "node A " ,result.getQualityReview(),
+                "node B ",result.getSecurityReview(),
+                "final Verdict", result.getFinalVerdict()
+        ));
     }
 }
