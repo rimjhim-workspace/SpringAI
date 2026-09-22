@@ -6,11 +6,14 @@ import com.learnwithdurgesh.springAILearning.service.agentic.model.SequentialBlo
 import com.learnwithdurgesh.springAILearning.service.agentic.workflow.ConditionalRoutingService;
 import com.learnwithdurgesh.springAILearning.service.agentic.workflow.ParallelWorkflowService;
 import com.learnwithdurgesh.springAILearning.service.agentic.workflow.SequentialWorkflowService;
+import com.learnwithdurgesh.springAILearning.service.agentic.workflow.StreamService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,11 +24,14 @@ public class SequentialWorkflowController {
     private final SequentialWorkflowService workflowService;
     private final ConditionalRoutingService conditionalRoutingService;
     private final ParallelWorkflowService parallelWorkflowService;
+    private final StreamService streamService;
 
-    public SequentialWorkflowController(SequentialWorkflowService workflowService , ConditionalRoutingService conditionalRoutingService, ParallelWorkflowService parallelWorkflowService) {
+    public SequentialWorkflowController(SequentialWorkflowService workflowService , ConditionalRoutingService conditionalRoutingService,
+                                        ParallelWorkflowService parallelWorkflowService,StreamService streamService) {
         this.workflowService = workflowService;
         this.conditionalRoutingService = conditionalRoutingService;
         this.parallelWorkflowService = parallelWorkflowService;
+        this.streamService = streamService;
     }
     @GetMapping("/seq")
     public ResponseEntity<Map<String , Object>> runSequentialWorkflow(@RequestParam("topic") String topic) {
@@ -59,4 +65,11 @@ public class SequentialWorkflowController {
                 "final Verdict", result.getFinalVerdict()
         ));
     }
+//  this is streaming output chatgpt like typing effect word by word result
+
+    @GetMapping(value="/stream",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> streamAnswer(@RequestParam("q") String query){
+        return streamService.streamAnswer(query);
+    }
+
 }
