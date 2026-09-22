@@ -14,11 +14,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("/agent")
 public class AgentController {
+
     private final HRAgentService hrAgentService;
-    private final ReturnAgentService returnAgentService;
-    public AgentController(HRAgentService hrAgentService , ReturnAgentService returnAgentService) {
+    public AgentController(HRAgentService hrAgentService ) {
         this.hrAgentService=hrAgentService;
-        this.returnAgentService=returnAgentService;
+
 
     }
     @GetMapping("/goal")
@@ -26,10 +26,10 @@ public class AgentController {
         String result = hrAgentService.runAgent(goal);
         return ResponseEntity.ok(Map.of("user-goal", goal , "agent-response",result));
     }
-    @GetMapping("/ask")
-    public ResponseEntity<String> getRefund(@RequestParam("req") String query ,
-                                                         @RequestParam(value = "conversationId", defaultValue = "default_session")String conversationId){
-        String res = returnAgentService.handleRequest(query ,  conversationId);
-        return ResponseEntity.ok(res);
-    }
+//    @GetMapping("/ask")
+//    public ResponseEntity<String> getRefund(@RequestParam("req") String query ,
+//                                                         @RequestParam(value = "conversationId", defaultValue = "default_session")String conversationId){
+//        String res = returnAgentService.handleRequest(query ,  conversationId);
+//        return ResponseEntity.ok(res);
+//    }
 }
